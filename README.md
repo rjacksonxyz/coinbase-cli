@@ -1,2 +1,2 @@
 # coinbase-cli
-A command-line interface interact with the Coinbase API. 
+A command-line interface to interact with the Coinbase API. 
