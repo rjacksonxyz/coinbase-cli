@@ -27,7 +27,7 @@ type CoinbaseClient struct {
 func NewAPIClient(creds CoinbaseAPICredentials) CoinbaseClient {
 	c := CoinbaseClient{
 		Creds:   creds,
-		BaseUrl: "https://api.coinbase.com",
+		BaseUrl: "https://api.coinbase.com/v2/accounts?&limit=100&order=asc",
 		Client:  &http.Client{},
 	}
 	return c
@@ -60,7 +60,6 @@ func (c CoinbaseClient) Get() map[string]interface{} {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
 	bytes := buf.Bytes()
-	log.Print(string(bytes))
 
 	var data map[string]interface{}
 
@@ -77,7 +76,7 @@ func (c CoinbaseClient) authenticate(req *http.Request) error {
 
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
 
-	message := nonce + "GET" + "/v2/accounts" + "" //As per Coinbase Documentation
+	message := nonce + "GET" + "/v2/accounts?&limit=100&order=asc" + "" //As per Coinbase Documentation
 
 	h := hmac.New(sha256.New, []byte(c.Creds.APISecret))
 	h.Write([]byte(message))
@@ -87,6 +86,7 @@ func (c CoinbaseClient) authenticate(req *http.Request) error {
 	req.Header.Set("CB-ACCESS-KEY", c.Creds.APIKey)
 	req.Header.Set("CB-ACCESS-SIGN", signature)
 	req.Header.Set("CB-ACCESS-TIMESTAMP", nonce)
+	req.Header.Set("CB-VERSION", "2021-01-01")
 
 	return nil
 }
