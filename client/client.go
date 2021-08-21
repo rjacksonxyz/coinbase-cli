@@ -1,4 +1,4 @@
-package login
+package client
 
 import (
 	"bytes"
@@ -24,6 +24,8 @@ type CoinbaseClient struct {
 	Client  *http.Client
 }
 
+// NewAPI client returns a CoinbaseClient that holds credentials and a base url
+// used to execute requests to the Coinbase API.
 func NewAPIClient(creds CoinbaseAPICredentials) CoinbaseClient {
 	c := CoinbaseClient{
 		Creds:   creds,
@@ -33,6 +35,15 @@ func NewAPIClient(creds CoinbaseAPICredentials) CoinbaseClient {
 	return c
 }
 
+// ClientFromJSON returns a CoinbaseClient given a JSON file path.
+/* Example JSON:
+
+{
+	"API-Key": "<insert API Key>",
+	"API-Secret" : "<insert API Secret>"
+}
+
+*/
 func ClientFromJSON(filepath string) CoinbaseClient {
 	raw, _ := ioutil.ReadFile(filepath)
 	var creds CoinbaseAPICredentials
@@ -42,6 +53,10 @@ func ClientFromJSON(filepath string) CoinbaseClient {
 	}
 	c := NewAPIClient(creds)
 	return c
+}
+
+func ClientFromStdIn() CoinbaseClient {
+	return CoinbaseClient{}
 }
 
 func (c CoinbaseClient) Get() map[string]interface{} {
@@ -66,6 +81,9 @@ func (c CoinbaseClient) Get() map[string]interface{} {
 	if err := json.Unmarshal(bytes, &data); err != nil {
 		log.Println("unable to parse response")
 	}
+
+	o, _ := json.MarshalIndent(data, "", "\t")
+	log.Print(string(o))
 
 	return data
 }
