@@ -30,7 +30,6 @@ func main() {
 
 /* Outline Functionality
 
-- Read in credentials.json
 - Show account balances, broken down by asset allocation
 - Show individual assets
 

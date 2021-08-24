@@ -24,6 +24,7 @@ type CoinbaseClient struct {
 	Client  *http.Client
 }
 
+//TODO: refactor to take in two params for credentials
 // NewAPI client returns a CoinbaseClient that holds credentials and a base url
 // used to execute requests to the Coinbase API.
 func NewAPIClient(creds CoinbaseAPICredentials) CoinbaseClient {
@@ -55,9 +56,16 @@ func ClientFromJSON(filepath string) CoinbaseClient {
 	return c
 }
 
-func ClientFromStdIn() CoinbaseClient {
-	return CoinbaseClient{}
-}
+//TODO: Finish STDIN login
+// func ClientFromStdIn() CoinbaseClient {
+// 	reader := bufio.NewReader(os.Stdin)
+// 	fmt.Print("enter api-key: ")
+// 	apiKey, err := reader.ReadString('\n')
+// 	if err != nil {
+// 		fmt.Print("Invalid")
+// 	}
+// 	return CoinbaseClient{}
+// }
 
 func (c CoinbaseClient) Get() map[string]interface{} {
 
