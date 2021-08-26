@@ -65,7 +65,7 @@ func ClientFromJSON(filepath string) CoinbaseClient {
 	return c
 }
 
-//TODO: Finish STDIN login
+// ClientFromStdIn returns a CoinbaseClient given prompted inputs (api-key and api-secret)
 func ClientFromStdIn() CoinbaseClient {
 
 	var key string
