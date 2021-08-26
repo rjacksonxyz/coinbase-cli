@@ -25,7 +25,6 @@ func main() {
 		text, _ := reader.ReadString('\n')
 		checkInput(text)
 	}
-
 }
 
 /* Outline Functionality

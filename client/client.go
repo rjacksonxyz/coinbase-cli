@@ -1,14 +1,18 @@
 package client
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -16,6 +20,11 @@ import (
 type CoinbaseAPICredentials struct {
 	APIKey    string `json:"API-Key"`
 	APISecret string `json:"API-Secret"`
+}
+
+type Request struct {
+	Method string
+	Uri    string
 }
 
 type CoinbaseClient struct {
@@ -57,17 +66,40 @@ func ClientFromJSON(filepath string) CoinbaseClient {
 }
 
 //TODO: Finish STDIN login
-// func ClientFromStdIn() CoinbaseClient {
-// 	reader := bufio.NewReader(os.Stdin)
-// 	fmt.Print("enter api-key: ")
-// 	apiKey, err := reader.ReadString('\n')
-// 	if err != nil {
-// 		fmt.Print("Invalid")
-// 	}
-// 	return CoinbaseClient{}
-// }
+func ClientFromStdIn() CoinbaseClient {
 
-func (c CoinbaseClient) Get() map[string]interface{} {
+	var key string
+	var secret string
+	var err error
+
+	login := false
+	for !login {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("enter api-key: ")
+		key, err = reader.ReadString('\n')
+		if err == io.EOF {
+			func() {}()
+		} else if err != nil {
+			fmt.Println("Encounterd error on input. Please try again")
+			continue
+		}
+
+		fmt.Print("enter api-secret: ")
+		secret, err = reader.ReadString('\n')
+		if err == io.EOF {
+			func() {}()
+		} else if err != nil {
+			fmt.Println("Encounterd error on input. Please try again")
+			continue
+		}
+		login = true
+	}
+	creds := CoinbaseAPICredentials{APIKey: key, APISecret: secret}
+	c := NewAPIClient(creds)
+	return c
+}
+
+func (c *CoinbaseClient) Get() map[string]interface{} {
 
 	req, err := http.NewRequest("GET", c.BaseUrl, nil)
 	if err != nil {
@@ -96,9 +128,13 @@ func (c CoinbaseClient) Get() map[string]interface{} {
 	return data
 }
 
+func (c *CoinbaseClient) GetPrice()    {}
+func (c *CoinbaseClient) GetAccounts() {}
+func (c *CoinbaseClient) GetBalance()  {}
+
 // API Key + Secret authentication requires a request header of the HMAC SHA-256
 // signature of the "message" as well as an incrementing nonce and the API key
-func (c CoinbaseClient) authenticate(req *http.Request) error {
+func (c *CoinbaseClient) authenticate(req *http.Request) error {
 
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
 
