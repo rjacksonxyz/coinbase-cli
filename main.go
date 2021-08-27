@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	cl "coinbase-cli/client"
 	"fmt"
 	"log"
 	"os"
@@ -18,6 +19,8 @@ func checkInput(input string) {
 }
 
 func main() {
+	c := cl.Login()
+	fmt.Print(c)
 	// CLI daemon
 	for {
 		reader := bufio.NewReader(os.Stdin)

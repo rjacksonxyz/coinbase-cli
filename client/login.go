@@ -8,7 +8,7 @@ import (
 )
 
 //TODO: Finish Login
-func login() CoinbaseClient {
+func Login() CoinbaseClient {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("coinbase login - `file` or `manual`?:  ")
 	text, _ := reader.ReadString('\n')
