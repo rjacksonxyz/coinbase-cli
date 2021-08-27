@@ -36,5 +36,6 @@ func main() {
 - Show overall account balance, refreshed every 5 secs
 - Show account balances, broken down by asset allocation
 - Show individual assets
+- Show multiple live feeds
 
 */
