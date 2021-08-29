@@ -20,7 +20,7 @@ func checkInput(input string) {
 
 func main() {
 	c := cl.Login()
-	fmt.Print(c)
+	fmt.Println(c)
 	// CLI daemon
 	for {
 		reader := bufio.NewReader(os.Stdin)

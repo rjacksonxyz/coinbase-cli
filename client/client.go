@@ -54,15 +54,16 @@ func NewAPIClient(creds CoinbaseAPICredentials) CoinbaseClient {
 }
 
 */
-func ClientFromJSON(filepath string) CoinbaseClient {
+func ClientFromJSON(filepath string) (CoinbaseClient, error) {
 	raw, _ := ioutil.ReadFile(filepath)
 	var creds CoinbaseAPICredentials
 	err := json.Unmarshal(raw, &creds)
 	if err != nil {
-		log.Println("unable to parse credentials from provied file/path")
+		fmt.Println("unable to parse credentials from provied file/path")
+		return CoinbaseClient{}, err
 	}
 	c := NewAPIClient(creds)
-	return c
+	return c, nil
 }
 
 // ClientFromStdIn returns a CoinbaseClient given prompted inputs (api-key and api-secret)
