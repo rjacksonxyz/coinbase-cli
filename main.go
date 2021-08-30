@@ -1,33 +1,15 @@
 package main
 
 import (
-	"bufio"
 	cl "coinbase-cli/client"
-	"fmt"
-	"log"
-	"os"
-	"strings"
+	"coinbase-cli/daemon"
 )
-
-func checkInput(input string) {
-
-	switch strings.TrimRight(input, "\n") {
-	case "exit":
-		log.Print("exiting...")
-		os.Exit(1)
-	}
-}
 
 func main() {
 	c := cl.Login()
-	fmt.Println(c)
+	d := daemon.Daemon{CBClient: &c}
 	// CLI daemon
-	for {
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print(">>> ")
-		text, _ := reader.ReadString('\n')
-		checkInput(text)
-	}
+	d.StartCli()
 }
 
 /* Outline Functionality

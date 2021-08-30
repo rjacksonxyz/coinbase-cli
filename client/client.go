@@ -22,7 +22,7 @@ type CoinbaseAPICredentials struct {
 	APISecret string `json:"API-Secret"`
 }
 
-type Request struct {
+type NewRequestInfo struct {
 	Method string
 	Uri    string
 }
@@ -100,18 +100,17 @@ func ClientFromStdIn() CoinbaseClient {
 	return c
 }
 
-func (c *CoinbaseClient) Get() map[string]interface{} {
+func (c *CoinbaseClient) Get(reqData NewRequestInfo) ([]byte, error) {
 
 	req, err := http.NewRequest("GET", c.BaseUrl, nil)
 	if err != nil {
 		log.Println("unable to create new request")
 	}
-	c.authenticate(req)
+	c.authenticate(req, reqData)
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		log.Print(err)
+		return nil, err
 	}
-	log.Println("Status: ", resp.Status)
 	defer resp.Body.Close()
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
@@ -120,26 +119,45 @@ func (c *CoinbaseClient) Get() map[string]interface{} {
 	var data map[string]interface{}
 
 	if err := json.Unmarshal(bytes, &data); err != nil {
-		log.Println("unable to parse response")
+		return nil, fmt.Errorf("unable to parse response body")
 	}
 
-	o, _ := json.MarshalIndent(data, "", "\t")
-	log.Print(string(o))
+	o, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return nil, err
+	}
 
-	return data
+	return o, nil
 }
 
-func (c *CoinbaseClient) GetPrice()    {}
-func (c *CoinbaseClient) GetAccounts() {}
-func (c *CoinbaseClient) GetBalance()  {}
+func (c *CoinbaseClient) GetPrice() {}
+
+//TODO: Parse account data into total portoflio balance
+func (c *CoinbaseClient) GetBalance() ([]byte, error) {
+	data, err := c.GetAccounts()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+
+}
+func (c *CoinbaseClient) GetAccounts() ([]byte, error) {
+
+	info := NewRequestInfo{Method: "GET", Uri: "/v2/accounts?&limit=100&order=asc"}
+	data, err := c.Get(info)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
 
 // API Key + Secret authentication requires a request header of the HMAC SHA-256
 // signature of the "message" as well as an incrementing nonce and the API key
-func (c *CoinbaseClient) authenticate(req *http.Request) error {
+func (c *CoinbaseClient) authenticate(req *http.Request, reqData NewRequestInfo) error {
 
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
 
-	message := nonce + "GET" + "/v2/accounts?&limit=100&order=asc" + "" //As per Coinbase Documentation
+	message := nonce + reqData.Method + reqData.Uri + "" //As per Coinbase Documentation
 
 	h := hmac.New(sha256.New, []byte(c.Creds.APISecret))
 	h.Write([]byte(message))
