@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -19,11 +20,6 @@ type CoinbaseAPICredentials struct {
 	APISecret string `json:"API-Secret"`
 }
 
-type NewRequestInfo struct {
-	Method string
-	Uri    string
-}
-
 type CommandInfo struct {
 	InfoType string
 }
@@ -35,7 +31,6 @@ type CoinbaseClient struct {
 }
 
 var baseUrl string = "https://api.coinbase.com/v2/"
-var priceUri string = "prices/"
 
 // ClientFromJSON returns a CoinbaseClient given a filepath to a json file.
 /* Example JSON:
@@ -49,8 +44,7 @@ func NewClient(filepath string) (CoinbaseClient, error) {
 	var creds CoinbaseAPICredentials
 	err := json.Unmarshal(raw, &creds)
 	if err != nil {
-		fmt.Println("unable to parse credentials from provied file/path")
-		return CoinbaseClient{}, err
+		return CoinbaseClient{}, errors.New("unable to parse credentials from provied file/path")
 	}
 	c := ClientFromCredentials(creds)
 	return c, nil
@@ -67,17 +61,18 @@ func ClientFromCredentials(creds CoinbaseAPICredentials) CoinbaseClient {
 	return c
 }
 
-func (c *CoinbaseClient) Get(reqData NewRequestInfo) ([]byte, error) {
-	return c.SendRequest("GET", reqData)
+func (c *CoinbaseClient) Get(uri string) ([]byte, error) {
+	return c.SendRequest("GET", uri)
 }
 
-func (c *CoinbaseClient) SendRequest(method string, reqData NewRequestInfo) ([]byte, error) {
+func (c *CoinbaseClient) SendRequest(method string, uri string) ([]byte, error) {
 
-	req, err := http.NewRequest(method, c.BaseUrl, nil)
+	req, err := http.NewRequest(method, c.BaseUrl+uri, nil)
+	fmt.Println(c.BaseUrl + uri)
 	if err != nil {
 		log.Println("unable to create new request")
 	}
-	c.authenticate(req, reqData)
+	c.authenticate(req, method, uri)
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -101,23 +96,13 @@ func (c *CoinbaseClient) SendRequest(method string, reqData NewRequestInfo) ([]b
 	return o, nil
 }
 
-// func (c *CoinbaseClient) GetAccounts() ([]byte, error) {
-
-// 	info := NewRequestInfo{Method: "GET", Uri: "/v2/accounts?&limit=100&order=asc"}
-// 	data, err := c.Get(info)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return data, nil
-// }
-
 // API Key + Secret authentication requires a request header of the HMAC SHA-256
 // signature of the "message" as well as an incrementing nonce and the API key
-func (c *CoinbaseClient) authenticate(req *http.Request, reqData NewRequestInfo) error {
+func (c *CoinbaseClient) authenticate(req *http.Request, method string, uri string) error {
 
 	nonce := strconv.FormatInt(time.Now().Unix(), 10)
 
-	message := nonce + reqData.Method + reqData.Uri + "" //As per Coinbase Documentation
+	message := nonce + method + uri + "" //As per Coinbase Documentation
 
 	h := hmac.New(sha256.New, []byte(c.Creds.APISecret))
 	h.Write([]byte(message))
@@ -132,10 +117,7 @@ func (c *CoinbaseClient) authenticate(req *http.Request, reqData NewRequestInfo)
 	return nil
 }
 
-func parseCommand() {
-
-}
-
 func CoinbaseCLIRequest() error {
+
 	return nil
 }
