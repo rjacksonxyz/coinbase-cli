@@ -1,0 +1,7 @@
+1. CLI that supports
+- Price data for symbol
+ + price now + relative to AT highs/lows, time specific prices
+- Acct balance + breakdown by asset
+- price comparision
+- graph data
+- export data to JSON/CSV formats
