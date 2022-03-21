@@ -3,6 +3,7 @@ package cli
 import (
 	client "coinbase-cli/internal"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -14,7 +15,11 @@ var (
 		Use:  "cbcli",
 		Long: "Coinbase CLI: Command-line interface to interact with Coinbase API\nMore info available at: https://github.com/0xmercurial/coinbase-cli/docs",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return execute()
+			if len(args) == 0 {
+				cmd.Help()
+				os.Exit(0)
+			}
+			return nil
 		},
 	}
 )

@@ -116,8 +116,3 @@ func (c *CoinbaseClient) authenticate(req *http.Request, method string, uri stri
 
 	return nil
 }
-
-func CoinbaseCLIRequest() error {
-
-	return nil
-}

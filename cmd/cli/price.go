@@ -26,5 +26,5 @@ var priceCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(priceCmd)
-	priceCmd.Flags().StringVarP(&currency_pairs, "currency_pairs", "c", "BTC-USD", "currency pair(s) in the form currencyA-currencyB to retrive quotes for. (for pair A-B, returns amount of A denominated in B)")
+	priceCmd.Flags().StringVarP(&currency_pairs, "currency_pairs", "c", "BTC-USD", "comma separated list of currency pairs (for pair A-B, returns amount of A denominated in B)")
 }
