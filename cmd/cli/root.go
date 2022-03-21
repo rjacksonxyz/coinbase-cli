@@ -1,8 +1,6 @@
 package cli
 
 import (
-	client "coinbase-cli/internal"
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -33,10 +31,4 @@ func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		panic(err)
 	}
-}
-
-func execute() error {
-	//implement simulation
-	fmt.Println("hello")
-	return client.CoinbaseCLIRequest()
 }
