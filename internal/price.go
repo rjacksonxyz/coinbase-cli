@@ -11,6 +11,7 @@ type PriceRequest struct {
 	CurrencyPairs string
 }
 
+// GetPrice prints out prices of given currency pairs.
 func (c *CoinbaseClient) GetPrice(params PriceRequest) ([]byte, error) {
 	for _, pair := range strings.Split(params.CurrencyPairs, ",") {
 		if data, err := c.SendRequest("GET", constructPriceURI(pair)); err != nil {
